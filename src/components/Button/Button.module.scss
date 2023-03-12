@@ -1,0 +1,14 @@
+.button {
+  width: 100%;
+  text-align: center;
+  padding: 10px 5px;
+  background-color: #1890FF;
+  border-radius: 4px;
+  color: #FFF;
+  border: none;
+  cursor: pointer;
+
+  &:focus {
+    border-color: #FFF;
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "env": {
+    "browser": true,
+    "es2021": true
+  },
+  "extends": [
+    "airbnb",
+		"prettier"
+	],
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "plugins": ["react"],
+  "rules": {
+		"react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx", ".ts", ".tsx"] }],
+		"comma-dangle": ["off"],
+		"jsx-quotes": ["error", "prefer-single"],
+		"quotes": ["error", "single", {"avoidEscape": true}],
+		"arrow-body-style": ["error", "as-needed"],
+		"prefer-arrow-callback": ["error", {"allowNamedFunctions": true, "allowUnboundThis": false}],
+		"react/function-component-definition": "off",
+		"react/react-in-jsx-scope": "off",
+		"react/state-in-constructor": "off",
+    "class-methods-use-this": "off",
+    "jsx-a11y/label-has-associated-control": "off",
+    "react/jsx-max-props-per-line": "error",
+    "jsx-a11y/no-autofocus": "off",
+    "linebreak-style": [0, "unix"],
+    "operator-linebreak": "off",
+		"semi": "off",
+    "no-plusplus": "off",
+    "react/prop-types": "off",
+    "react/no-unused-class-component-methods": "off",
+    "no-param-reassign": "off",
+    "jsx-a11y/no-noninteractive-element-interactions": "off",
+    "jsx-a11y/control-has-associated-label": "off",
+    "import/no-extraneous-dependencies": "off",
+    "default-param-last": "off",
+    "react/jsx-props-no-spreading": "off",
+    "no-use-before-define": "off"
+	},
+	"settings": {
+    "react": {
+      "pragma": "React",
+      "version": "detect"
+    }
+  }
+}

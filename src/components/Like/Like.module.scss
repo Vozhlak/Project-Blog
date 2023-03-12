@@ -1,0 +1,40 @@
+.like {
+  height: 18px;
+  width: 18px;
+  vertical-align: middle;
+  margin-bottom: 2px;
+  margin-right: 5px;
+  cursor: pointer;
+  
+  & * {
+    fill: red;
+    stroke: red;
+  }
+}
+
+.nolike {
+  height: 18px;
+  width: 18px;
+  vertical-align: middle;
+  margin-bottom: 2px;
+  margin-right: 5px;
+  cursor: pointer;
+  fill: #FFF;
+  stroke: rgba(#000000, .7);
+  transition: all .4s ease-in-out;
+}
+
+.auth {
+  &:hover * {
+    fill: red;
+    stroke: red;
+  }
+}
+
+.btn {
+  background: transparent;
+  border: none;
+  width: auto;
+  padding: 0;
+}
+
