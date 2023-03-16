@@ -10,12 +10,15 @@ import Form from '../Form';
 import { InputText } from '../Inputs';
 import Button from '../Button';
 import options from '../../utils/getOptionsToast';
+import useGetStateNetwork from '../../hooks/useGetStateNetwork';
 
 const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { status, error } = useSelector((state) => state.users);
   const [email, setEmail] = useState('');
+  const [disabled, setDisabled] = useState(false);
+  const isOnline = useGetStateNetwork();
 
   const fieldsInputs = [
     {
@@ -42,8 +45,13 @@ const Login = () => {
   ];
 
   const onSubmit = (data) => {
-    setEmail(data.email);
-    dispatch(loginUser({ ...data }));
+    if (!isOnline) {
+      toast.error('Not network!!!', options);
+    } else {
+      setDisabled(true);
+      setEmail(data.email);
+      dispatch(loginUser({ ...data }));
+    }
   };
 
   const getValidateRules = (rules, name) => {
@@ -64,12 +72,14 @@ const Login = () => {
         dispatch(fetchArticles());
         navigate('/');
       }, 500);
+      setDisabled(false);
     }
 
     if (status === 'failed') {
       toast.error(`email or password ${error.errorsValue['email or password']}`, options);
       dispatch(clearStatusAndErrors());
     }
+    setDisabled(false);
   }, [status, error]);
 
   return (
@@ -85,7 +95,7 @@ const Login = () => {
           validateRules={getValidateRules(fieldsInputs, 'email')}
         />
         <InputText
-          type='text'
+          type='password'
           name='password'
           label='password'
           placeholder='Password'
@@ -94,6 +104,7 @@ const Login = () => {
         <div className={styles.btnLogin}>
           <Button
             label='Login'
+            disabled={disabled}
             type='submit'
           />
         </div>

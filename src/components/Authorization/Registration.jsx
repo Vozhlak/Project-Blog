@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
@@ -10,11 +10,16 @@ import Form from '../Form';
 import { InputText, InputCheckbox } from '../Inputs';
 import Button from '../Button';
 import options from '../../utils/getOptionsToast';
+import useGetStateNetwork from '../../hooks/useGetStateNetwork';
 
 const Registration = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { status, error } = useSelector((state) => state.users);
+  const [errorNetworkInput, setErrorNetworkInput] = useState([]);
+  const [disabled, setDisabled] = useState(false);
+  const isOnline = useGetStateNetwork();
+
 
   const fieldsInputs = [
     {
@@ -83,7 +88,12 @@ const Registration = () => {
   ];
 
   const onSubmit = async (data) => {
-    dispatch(registerUser({ ...data }));
+    if (!isOnline) {
+      toast.error('Not network!!!', options);
+    } else {
+      setDisabled(true);
+      dispatch(registerUser({ ...data }));
+    }
   };
 
   const getValidateRules = (rules, name) => {
@@ -103,15 +113,20 @@ const Registration = () => {
         navigate('/articles');
         dispatch(clearStatusAndErrors());
       }, 500);
+      setDisabled(false);
     }
-
+    
     if (status === 'failed') {
-      Object.keys(error.errorsValue).forEach((item) => {
+      const errorNetwork = Object.keys(error.errorsValue).map((item) => {
         const name = item;
         const message = error.errorsValue[item];
-        toast(`${name}: ${message}`, options);
+        return {
+          [name]: message
+        }
       });
+      setErrorNetworkInput(errorNetwork);
       dispatch(clearStatusAndErrors());
+      setDisabled(false);
     }
   }, [status, error]);
 
@@ -119,6 +134,7 @@ const Registration = () => {
     <div className={styles['wrapper-form']}>
       <Form
         title='Create new account'
+        error={errorNetworkInput}
         fn={onSubmit}>
         <InputText
           type='text'
@@ -156,6 +172,7 @@ const Registration = () => {
         </div>
         <Button
           label='Create'
+          disabled={disabled}
           type='submit'
         />
         <span className={styles['form-span']}>

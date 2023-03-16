@@ -1,8 +1,11 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import styles from './Header.module.scss';
 import authorImg from '../../assets/img-author.svg';
 import { logout } from '../../store/userSlice';
+import useGetStateNetwork from '../../hooks/useGetStateNetwork';
+import options from '../../utils/getOptionsToast';
 
 const Header = () => {
   const dispatch = useDispatch();
@@ -10,6 +13,7 @@ const Header = () => {
   const { user, isAuth } = useSelector((state) => state.users);
   const { username, image } = user;
   const avatar = image || authorImg;
+  const isOnline = useGetStateNetwork();
 
   const logoutFn = () => {
     dispatch(logout());
@@ -21,7 +25,8 @@ const Header = () => {
       <h1 className={styles['header-logo']}>
         <Link
           className={styles['link-logo']}
-          to='/'>
+          to={isOnline ? '/' : '#'}
+          onClick={() => !isOnline && toast.error('Not network!!!', options)}>
           Realworld Blog
         </Link>
       </h1>

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast, ToastContainer } from 'react-toastify';
 import { Spin } from 'antd';
@@ -7,10 +7,14 @@ import { InputText } from '../Inputs';
 import Button from '../Button';
 import { updateProfile, clearStatusAndErrors } from '../../store/userSlice';
 import options from '../../utils/getOptionsToast';
+import useGetStateNetwork from '../../hooks/useGetStateNetwork';
 
 const EditProfile = () => {
   const dispatch = useDispatch();
   const { user, status, error } = useSelector((state) => state.users);
+  const [disabled, setDisabled] = useState(false);
+  const isOnline = useGetStateNetwork();
+
   const textFields = {
     username: {
       validate: {
@@ -54,11 +58,16 @@ const EditProfile = () => {
   };
 
   const onSubmit = (data) => {
-    if (!data.newPassword) {
-      const { newPassword, ...newData } = data;
-      dispatch(updateProfile(newData));
+    if (!isOnline) {
+      toast.error('Not network!!!', options);
     } else {
-      dispatch(updateProfile(data));
+      setDisabled(true);
+      if (!data.newPassword) {
+        const { newPassword, ...newData } = data;
+        dispatch(updateProfile(newData));
+      } else {
+        dispatch(updateProfile(data));
+      }
     }
   };
 
@@ -66,6 +75,7 @@ const EditProfile = () => {
     if (status === 'success') {
       toast.success('Your profile has been successfully updated', options);
       dispatch(clearStatusAndErrors());
+      setDisabled(false);
     }
 
     if (status === 'failed') {
@@ -75,6 +85,7 @@ const EditProfile = () => {
         toast.error(`${name}: ${message}`, options);
       });
       dispatch(clearStatusAndErrors());
+      setDisabled(false);
     }
   }, [status, error]);
 
@@ -123,7 +134,7 @@ const EditProfile = () => {
           placeholder='Avatar image'
           validateRules={textFields.imageUrl.validate}
         />
-        <Button label='Save' />
+        <Button label='Save' disabled={disabled} />
       </Form>
       <ToastContainer />
     </>

@@ -11,6 +11,7 @@ import Button from '../Button';
 import TagsList from '../CreateTagsList/TagsList';
 import { createArticle, editArticle, clearStatusAndError } from '../../store/articleSlice';
 import options from '../../utils/getOptionsToast';
+import useGetStateNetwork from '../../hooks/useGetStateNetwork';
 
 const CreateArticle = ({ type }) => {
   const { slug } = useParams();
@@ -18,8 +19,12 @@ const CreateArticle = ({ type }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [tags, setTags] = useState([]);
+  const [disabled, setDisabled] = useState(false);
 
   const editArt = type === 'edit' ? articles.find((item) => item.slug === slug) : null;
+  const username = editArt?.author?.username;
+  const isOnline = useGetStateNetwork();
+
 
   const validateRules = {
     title: {
@@ -45,36 +50,41 @@ const CreateArticle = ({ type }) => {
   };
 
   const onSubmit = (data) => {
-    const markdown = <ReactMarkdown>{data.body}</ReactMarkdown>;
-    if (type === 'create') {
-      if (tags.length > 0) {
-        dispatch(
-          createArticle({
-            ...data,
-            body: markdown.props.children,
-            tagList: tags
-          })
-        );
-      } else {
-        dispatch(createArticle({ ...data, body: markdown.props.children }));
+    if (!isOnline) {
+      toast.error('Not network!!!', options);
+    } else {
+      setDisabled(true);
+      const markdown = <ReactMarkdown>{data.body}</ReactMarkdown>;
+      if (type === 'create') {
+        if (tags.length > 0) {
+          dispatch(
+            createArticle({
+              ...data,
+              body: markdown.props.children,
+              tagList: tags
+            })
+          );
+        } else {
+          dispatch(createArticle({ ...data, body: markdown.props.children }));
+        }
       }
-    }
-
-    if (type === 'edit') {
-      if (tags.length > 0) {
-        dispatch(
-          editArticle({
-            slug,
-            data: { ...data, body: markdown.props.children, tagList: tags }
-          })
-        );
-      } else {
-        dispatch(
-          editArticle({
-            slug,
-            data: { ...data, body: markdown.props.children }
-          })
-        );
+  
+      if (type === 'edit') {
+        if (tags.length > 0) {
+          dispatch(
+            editArticle({
+              slug,
+              data: { ...data, body: markdown.props.children, tagList: tags }
+            })
+          );
+        } else {
+          dispatch(
+            editArticle({
+              slug,
+              data: { ...data, body: markdown.props.children }
+            })
+          );
+        }
       }
     }
   };
@@ -87,6 +97,7 @@ const CreateArticle = ({ type }) => {
         dispatch(clearStatusAndError());
         localStorage.removeItem('slug');
       }, 1000);
+      setDisabled(false);
     }
 
     if (status === 'success' && type === 'edit') {
@@ -95,6 +106,7 @@ const CreateArticle = ({ type }) => {
         navigate(`/articles/${slug}`);
         dispatch(clearStatusAndError());
       }, 1000);
+      setDisabled(false);
     }
 
     if (status === 'failed') {
@@ -102,8 +114,16 @@ const CreateArticle = ({ type }) => {
       setTimeout(() => {
         dispatch(clearStatusAndError());
       }, 800);
+      setDisabled(false);
     }
-  }, [status, error, type]);
+
+    if (type === 'edit' && username) {
+      if (username !== localStorage.getItem('username')) {
+        navigate(`/articles/${slug}`);
+      }
+    }
+    
+  }, [status, error, type, editArt]);
 
   return !editArt && type === 'edit' ? (
     <Spin
@@ -144,7 +164,7 @@ const CreateArticle = ({ type }) => {
           tags={editArt?.tagList}
         />
         <div className={styles.wrapBtn}>
-          <Button label='Send' />
+          <Button label='Send' disabled={disabled} />
         </div>
       </Form>
       <ToastContainer />

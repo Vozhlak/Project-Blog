@@ -6,7 +6,9 @@ const InputText = ({ type, label, placeholder, name, validateRules, defaultValue
   const {
     register,
     formState: { errors },
-    setValue
+    setValue,
+    customErrors,
+    setError
   } = useFormContext();
 
   useEffect(() => {
@@ -16,7 +18,17 @@ const InputText = ({ type, label, placeholder, name, validateRules, defaultValue
     if (!defaultValue) {
       setValue(name, '');
     }
+    
   }, [defaultValue]);
+  
+  useEffect(() => {
+    if (customErrors) {
+      customErrors.forEach(item => {
+        const nameInput = Object.keys(item);
+        setError(...nameInput, {type: 'error network', message: item[nameInput]});
+      });
+    }
+  }, [customErrors])
 
   return (
     <label className={styles.labelInput}>

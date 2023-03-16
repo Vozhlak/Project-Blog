@@ -10,19 +10,23 @@ import { auth } from '../../store/userSlice';
 import Layout from '../Layout';
 import EditProfile from '../EditProfile';
 import CreateArticleAndEdit from '../CreateAndEditArticle';
+import useGetStateNetwork from '../../hooks/useGetStateNetwork';
 
 function App() {
   const dispatch = useDispatch();
 
   const { currentPage } = useSelector((state) => state.articles);
   const { isAuth } = useSelector((state) => state.users);
+  const isOnline = useGetStateNetwork();
 
   useEffect(() => {
     if (isAuth) {
       dispatch(auth());
     }
 
-    dispatch(fetchArticles(currentPage));
+    if (isOnline) {
+      dispatch(fetchArticles(currentPage));
+    }
   }, [currentPage, isAuth]);
 
   return (
@@ -73,6 +77,6 @@ function App() {
   );
 }
 
-const PageNotFound = () => <div>Page no found</div>;
+const PageNotFound = () => <div>Page not found</div>;
 
 export default App;
